@@ -1,0 +1,162 @@
+Ansible
+
+	-Written in python
+	-established in 2012
+	-Uses SSH connection
+
+	Config file 
+	cd /etc/ansible
+	ls
+	hosts --> target host info
+	ansible.chg --> ansible config
+	roles
+	
+--------------------------------------------------------------------------------
+Configure SSH on ansible node
+
+	cd /
+	cd .ssh
+	ssh-keygen -t rsa | id_rsa.pub file will be created
+	ssh-copy-id <ipaddr>
+		or
+	scp id_rsa.pub <target IP id>:/tmp
+	
+To communicate with target host || SSH needs to be shared
+    
+	+++Target+++
+	
+	cd /tmp
+	ls id_rsa.pub
+	mv id_rsa.pub /root/.ssh/authentication_keys
+	cd /root/.ssh
+	
+Test connection
+
+	Ansible -m ping <host group/ipaddr>
+--------------------------------------------------------------------------------
+Ad hoc commands
+	
+To reboot target host
+
+	ansible rhel6 -a "/sbin/reboot" -f 1
+		-rhel6 = host group
+		-a = module argument
+		-f = forks | no.of process | default 5
+
+		ansible rhel6 -m copy -a "src= dest= "
+		
+			ansible rhel6 -m file -a "dest=/tmp/peri/log" | creates dir stru
+			
+				ansible rhel6 -m service -a "name= sshd state=restarted" | restarts the services
+				
+					ansible rhel6 -m setup | to view the setup of remote host
+------------------------------------------------------------------------------
+
+#Inventory#
+
+	target host servers ips will reside in /etc/ansible/hosts
+
+type 1	
+	
+	[group name]
+	ip
+
+type 2
+
+	[g name]
+	var_name ip/alias_name:port
+	peri	192.168.43.1:8080
+	
+type 3
+
+	[g name]
+	var_name1
+	var_name2
+	
+	[g name:vars]
+	
+	var_name1 ip/alias_name:port
+	var_name2 ip/alias_name:port
+	
+type 4 <groups of groups> using--> :children
+
+	[atlanta]
+		host1
+		host2
+
+	[raleigh]
+		host2
+		host3
+
+	[southeast:children]
+		atlanta
+		raleigh
+
+	[southeast:vars]
+		some_server=foo.southeast.example.com
+		halon_system_timeout=30
+		self_destruct_countdown=60
+		escape_pods=2
+
+	[usa:children]
+		southeast
+		northeast
+		southwest
+		northwest
+
+Default groups
+There are two default groups: all and ungrouped. 
+all contains every host. 
+ungrouped contains all hosts that don’t have another group aside from
+
+--------------------------------------------------------------------
+#playbook#
+
+	formats -- yml | toml | jason
+
+ping.yml
+
+	#Playbook to test connection
+	---
+	- hosts: <hostgroup>
+	  remote_user: root
+	  - tasks:
+	    - name: ping test
+		  ping:
+		  
+	# to change the runtime user
+		become: yes
+		become_method: su
+		become_user: <user name>
+# To execute
+
+	ansible-playbook ping.yml -i <user defined inventory> -K <sudo pwd>
+	
+		-i -- optional <user can provide coustomized path for inventory>
+-----------------------------------------------------------------------
+#Role#
+
+	ansible-galaxy init <role name> | create role
+	
+	ansible-galaxy init --force --offline <role name>
+	
+	ansible-galaxy install <file>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
